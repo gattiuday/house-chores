@@ -1,5 +1,5 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-app.js";
-import { getFirestore, doc, getDoc, setDoc, onSnapshot } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-firestore.js";
+import { getDatabase, ref, onValue, set, get, child } from "https://www.gstatic.com/firebasejs/10.9.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBRKBsSuuNe8YSBzg4Q6pKZQCh-enW-t5w",
@@ -13,7 +13,7 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
-const db = getFirestore(app);
+const db = getDatabase(app);
 
 let isAdmin = false;
 const ADMIN_PASSWORD = 'admin';
@@ -51,19 +51,19 @@ function setDateInfo() {
 
 // Fetch & Display Chores using Real-time Listener
 function fetchChores() {
-    const docRef = doc(db, "chores", "tracker");
+    const dbRef = ref(db, 'chores/tracker');
     
-    onSnapshot(docRef, (docSnap) => {
-        if (!docSnap.exists()) {
+    onValue(dbRef, (snapshot) => {
+        if (!snapshot.exists()) {
             console.log("No data found! Initializing default data...");
-            setDoc(docRef, defaultData).catch(err => {
-                console.error("Firestore Write Error (Check your security rules!):", err);
-                showToast("Database permission denied. Check your Firebase Firestore rules.", "error");
+            set(dbRef, defaultData).catch(err => {
+                console.error("Firebase Write Error:", err);
+                showToast("Database denied. Check Realtime Database rules.", "error");
             });
             return;
         }
 
-        const data = docSnap.data();
+        const data = snapshot.val();
         for (const [key, value] of Object.entries(data)) {
             const currentAssignee = value.sequence[value.currentIndex];
             const nextAssignee = value.sequence[(value.currentIndex + 1) % value.sequence.length];
@@ -77,7 +77,6 @@ function fetchChores() {
             if (nextEl) nextEl.innerText = nextAssignee;
 
             if (nameEl && nameEl.innerText !== currentAssignee) {
-                // Fade out/in effect for dynamic feel
                 nameEl.style.opacity = '0';
                 if(avatarEl) avatarEl.style.transform = 'scale(0.8)';
                 
@@ -95,22 +94,22 @@ function fetchChores() {
             }
         }
     }, (error) => {
-        console.error("Firestore Read Error:", error);
-        showToast("Cannot read database. Did you enable Firestore in Test Mode?", "error");
+        console.error("Firebase Read Error:", error);
+        showToast("Cannot read database.", "error");
     });
 }
 
-// Complete Chore updates Firestore
+// Complete Chore updates Firebase
 async function completeChore(choreName) {
     if (!isAdmin) return;
     
     try {
-        const docRef = doc(db, "chores", "tracker");
-        const docSnap = await getDoc(docRef);
+        const dbRef = ref(db, 'chores/tracker');
+        const snapshot = await get(dbRef);
         
-        if (!docSnap.exists()) return;
+        if (!snapshot.exists()) return;
         
-        let data = docSnap.data();
+        let data = snapshot.val();
         if (!data[choreName]) return;
         
         // Button Feedback
@@ -123,8 +122,8 @@ async function completeChore(choreName) {
         data[choreName].currentIndex = (data[choreName].currentIndex + 1) % data[choreName].sequence.length;
         data[choreName].dueDate = getNextWeekDateString();
         
-        // Save back to Firestore
-        await setDoc(docRef, data);
+        // Save back to Firebase
+        await set(dbRef, data);
         
         setTimeout(() => {
             btn.innerText = originalText;
@@ -136,7 +135,7 @@ async function completeChore(choreName) {
         
     } catch (err) {
         console.error("Error completing task:", err);
-        showToast('Error saving to database. Check Firebase permissions.', 'error');
+        showToast('Error saving to database. Check permissions.', 'error');
     }
 }
 
@@ -145,13 +144,11 @@ const adminBtn = document.getElementById('adminBtn');
 if (adminBtn) {
     adminBtn.addEventListener('click', () => {
         if (!isAdmin) {
-            const pass = prompt('Enter admin password to unlock task controls (Password is currently: admin):');
+            const pass = prompt('Enter admin password to unlock task controls (Password is admin):');
             if (pass && pass.trim() === ADMIN_PASSWORD) {
                 isAdmin = true;
                 adminBtn.innerText = 'Lock Controls';
                 adminBtn.classList.replace('outline', 'primary');
-                
-                // Show complete buttons
                 document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.remove('hidden'));
                 showToast('Admin mode unlocked ✨', 'success');
             } else if (pass) {
@@ -161,8 +158,6 @@ if (adminBtn) {
             isAdmin = false;
             adminBtn.innerText = 'Admin Access';
             adminBtn.classList.replace('primary', 'outline');
-            
-            // Hide complete buttons
             document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.add('hidden'));
             showToast('Admin controls locked 🔒', 'success');
         }
@@ -174,20 +169,14 @@ let toastTimeout;
 function showToast(message, type = '') {
     const toast = document.getElementById('toast');
     if (!toast) return;
-    
     toast.innerText = message;
     toast.className = `toast show ${type}`;
-    
     clearTimeout(toastTimeout);
-    toastTimeout = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 3000);
+    toastTimeout = setTimeout(() => { toast.classList.remove('show'); }, 3000);
 }
 
-// Bind to window to allow inline onclick handlers from HTML
 window.completeChore = completeChore;
 
-// Init
 document.addEventListener('DOMContentLoaded', () => {
     setDateInfo();
     fetchChores();
