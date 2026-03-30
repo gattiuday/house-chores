@@ -139,21 +139,39 @@ async function completeChore(choreName) {
     }
 }
 
-// Admin toggle
+// Admin toggle & Secure Login Modal
 const adminBtn = document.getElementById('adminBtn');
+const loginModal = document.getElementById('loginModal');
+const cancelLoginBtn = document.getElementById('cancelLoginBtn');
+const submitLoginBtn = document.getElementById('submitLoginBtn');
+const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+function closeLoginModal() {
+    loginModal.classList.add('hidden');
+    adminPasswordInput.value = '';
+}
+
+function processLogin() {
+    const pass = adminPasswordInput.value;
+    if (pass && pass.trim() === ADMIN_PASSWORD) {
+        isAdmin = true;
+        adminBtn.innerText = 'Lock Controls';
+        adminBtn.classList.replace('outline', 'primary');
+        document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.remove('hidden'));
+        showToast('Admin mode unlocked ✨', 'success');
+        closeLoginModal();
+    } else {
+        showToast('Incorrect password', 'error');
+        adminPasswordInput.value = '';
+        adminPasswordInput.focus();
+    }
+}
+
 if (adminBtn) {
     adminBtn.addEventListener('click', () => {
         if (!isAdmin) {
-            const pass = prompt('Enter admin password to unlock task controls:');
-            if (pass && pass.trim() === ADMIN_PASSWORD) {
-                isAdmin = true;
-                adminBtn.innerText = 'Lock Controls';
-                adminBtn.classList.replace('outline', 'primary');
-                document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.remove('hidden'));
-                showToast('Admin mode unlocked ✨', 'success');
-            } else if (pass) {
-                showToast('Incorrect password', 'error');
-            }
+            loginModal.classList.remove('hidden');
+            setTimeout(() => adminPasswordInput.focus(), 100);
         } else {
             isAdmin = false;
             adminBtn.innerText = 'Admin Access';
@@ -161,6 +179,14 @@ if (adminBtn) {
             document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.add('hidden'));
             showToast('Admin controls locked 🔒', 'success');
         }
+    });
+}
+
+if (cancelLoginBtn) { cancelLoginBtn.addEventListener('click', closeLoginModal); }
+if (submitLoginBtn) { submitLoginBtn.addEventListener('click', processLogin); }
+if (adminPasswordInput) {
+    adminPasswordInput.addEventListener('keypress', (e) => {
+        if (e.key === 'Enter') processLogin();
     });
 }
 

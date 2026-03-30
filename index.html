@@ -100,6 +100,19 @@
         </main>
     </div>
     
+    <!-- Login Modal -->
+    <div id="loginModal" class="modal-overlay hidden">
+        <div class="modal-content glass">
+            <h2>Admin Login</h2>
+            <p>Enter actual password to unlock task controls.</p>
+            <input type="password" id="adminPasswordInput" placeholder="Password" />
+            <div class="modal-actions">
+                <button class="btn outline" id="cancelLoginBtn">Cancel</button>
+                <button class="btn primary" id="submitLoginBtn">Unlock</button>
+            </div>
+        </div>
+    </div>
+    
     <div id="toast" class="toast hidden">Notice here</div>
 
     <script type="module" src="app.js"></script>
