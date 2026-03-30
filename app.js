@@ -53,7 +53,6 @@ function setDateInfo() {
 function fetchChores() {
     const docRef = doc(db, "chores", "tracker");
     
-    // onSnapshot listens for real-time updates across ALL devices instantly
     onSnapshot(docRef, (docSnap) => {
         if (!docSnap.exists()) {
             console.log("No data found! Initializing default data...");
@@ -67,22 +66,32 @@ function fetchChores() {
         const data = docSnap.data();
         for (const [key, value] of Object.entries(data)) {
             const currentAssignee = value.sequence[value.currentIndex];
+            const nextAssignee = value.sequence[(value.currentIndex + 1) % value.sequence.length];
+            
             const nameEl = document.getElementById(`assignee-${key}`);
             const dateEl = document.getElementById(`date-${key}`);
+            const avatarEl = document.getElementById(`avatar-${key}`);
+            const nextEl = document.getElementById(`next-${key}`);
             
-            if (dateEl) {
-                dateEl.innerText = value.dueDate ? `Due: ${value.dueDate}` : 'Due: Assigning...';
-            }
+            if (dateEl) dateEl.innerText = value.dueDate ? `Due: ${value.dueDate}` : 'Due: Assigning...';
+            if (nextEl) nextEl.innerText = nextAssignee;
 
             if (nameEl && nameEl.innerText !== currentAssignee) {
-                // Fade out/in effect for dynamic feel when data syncs from another device
+                // Fade out/in effect for dynamic feel
                 nameEl.style.opacity = '0';
+                if(avatarEl) avatarEl.style.transform = 'scale(0.8)';
+                
                 setTimeout(() => { 
                     nameEl.innerText = currentAssignee;
+                    if(avatarEl) {
+                        avatarEl.innerText = currentAssignee.charAt(0).toUpperCase();
+                        avatarEl.style.transform = 'scale(1)';
+                    }
                     nameEl.style.opacity = '1'; 
                 }, 150);
             } else if (nameEl) {
                 nameEl.innerText = currentAssignee;
+                if(avatarEl) avatarEl.innerText = currentAssignee.charAt(0).toUpperCase();
             }
         }
     }, (error) => {
@@ -104,6 +113,12 @@ async function completeChore(choreName) {
         let data = docSnap.data();
         if (!data[choreName]) return;
         
+        // Button Feedback
+        const btn = document.getElementById(`btn-${choreName}`);
+        const originalText = btn.innerText;
+        btn.innerText = "Completed ✅";
+        btn.classList.add('btn-success');
+        
         // Advance rotation
         data[choreName].currentIndex = (data[choreName].currentIndex + 1) % data[choreName].sequence.length;
         data[choreName].dueDate = getNextWeekDateString();
@@ -111,8 +126,13 @@ async function completeChore(choreName) {
         // Save back to Firestore
         await setDoc(docRef, data);
         
+        setTimeout(() => {
+            btn.innerText = originalText;
+            btn.classList.remove('btn-success');
+        }, 1500);
+        
         const newAssignment = data[choreName].sequence[data[choreName].currentIndex];
-        showToast(`${choreName} task completed! Next up: ${newAssignment}`, 'success');
+        showToast(`${choreName} completed! Over to you, ${newAssignment}`, 'success');
         
     } catch (err) {
         console.error("Error completing task:", err);
@@ -133,7 +153,7 @@ if (adminBtn) {
                 
                 // Show complete buttons
                 document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.remove('hidden'));
-                showToast('Admin mode unlocked', 'success');
+                showToast('Admin mode unlocked ✨', 'success');
             } else if (pass) {
                 showToast('Incorrect password', 'error');
             }
@@ -144,7 +164,7 @@ if (adminBtn) {
             
             // Hide complete buttons
             document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.add('hidden'));
-            showToast('Admin controls locked', 'success');
+            showToast('Admin controls locked 🔒', 'success');
         }
     });
 }
