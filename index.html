@@ -35,7 +35,10 @@
                     <span class="up-next-name" id="next-trash"></span>
                 </div>
                 
-                <button class="btn primary complete-btn hidden" id="btn-trash" onclick="completeChore('trash')">Mark Complete</button>
+                <div class="admin-actions hidden">
+                    <button class="btn primary complete-btn" id="btn-trash" onclick="completeChore('trash')">Mark Complete</button>
+                    <button class="btn outline reassign-btn" onclick="reassignChore('trash')">Reassign 🔄</button>
+                </div>
             </div>
             
             <div class="chore-card glass theme-blue" data-chore="mopping">
@@ -55,7 +58,10 @@
                     <span class="up-next-name" id="next-mopping"></span>
                 </div>
                 
-                <button class="btn primary complete-btn hidden" id="btn-mopping" onclick="completeChore('mopping')">Mark Complete</button>
+                <div class="admin-actions hidden">
+                    <button class="btn primary complete-btn" id="btn-mopping" onclick="completeChore('mopping')">Mark Complete</button>
+                    <button class="btn outline reassign-btn" onclick="reassignChore('mopping')">Reassign 🔄</button>
+                </div>
             </div>
             
             <div class="chore-card glass theme-purple" data-chore="bathroom">
@@ -75,7 +81,10 @@
                     <span class="up-next-name" id="next-bathroom"></span>
                 </div>
                 
-                <button class="btn primary complete-btn hidden" id="btn-bathroom" onclick="completeChore('bathroom')">Mark Complete</button>
+                <div class="admin-actions hidden">
+                    <button class="btn primary complete-btn" id="btn-bathroom" onclick="completeChore('bathroom')">Mark Complete</button>
+                    <button class="btn outline reassign-btn" onclick="reassignChore('bathroom')">Reassign 🔄</button>
+                </div>
             </div>
             
             <div class="chore-card glass theme-orange" data-chore="kitchen">
@@ -95,7 +104,10 @@
                     <span class="up-next-name" id="next-kitchen"></span>
                 </div>
                 
-                <button class="btn primary complete-btn hidden" id="btn-kitchen" onclick="completeChore('kitchen')">Mark Complete</button>
+                <div class="admin-actions hidden">
+                    <button class="btn primary complete-btn" id="btn-kitchen" onclick="completeChore('kitchen')">Mark Complete</button>
+                    <button class="btn outline reassign-btn" onclick="reassignChore('kitchen')">Reassign 🔄</button>
+                </div>
             </div>
         </main>
     </div>
