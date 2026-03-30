@@ -139,46 +139,6 @@ async function completeChore(choreName) {
     }
 }
 
-// Admin manual reassign
-async function reassignChore(choreName) {
-    if (!isAdmin) return;
-    
-    try {
-        const dbRef = ref(db, 'chores/tracker');
-        const snapshot = await get(dbRef);
-        
-        if (!snapshot.exists()) return;
-        
-        let data = snapshot.val();
-        if (!data[choreName]) return;
-        
-        const sequence = data[choreName].sequence;
-        const validNames = sequence.join(', ');
-        const currentAssignee = sequence[data[choreName].currentIndex];
-        
-        const newName = prompt(`Reassign ${choreName} to someone else?\n\nValid names: ${validNames}\nCurrent: ${currentAssignee}`);
-        
-        if (!newName) return; // Cancelled
-        
-        const index = sequence.findIndex(name => name.toLowerCase() === newName.trim().toLowerCase());
-        
-        if (index === -1) {
-            showToast(`Error: "${newName}" is not a valid housemate for this chore.`, 'error');
-            return;
-        }
-        
-        // Update index without advancing due date
-        data[choreName].currentIndex = index;
-        await set(dbRef, data);
-        
-        showToast(`${choreName} explicitly reassigned to ${sequence[index]} 🔄`, 'success');
-        
-    } catch (err) {
-        console.error("Error reassigning task:", err);
-        showToast('Error saving to database. Check permissions.', 'error');
-    }
-}
-
 // Admin toggle
 const adminBtn = document.getElementById('adminBtn');
 if (adminBtn) {
@@ -189,7 +149,7 @@ if (adminBtn) {
                 isAdmin = true;
                 adminBtn.innerText = 'Lock Controls';
                 adminBtn.classList.replace('outline', 'primary');
-                document.querySelectorAll('.admin-actions').forEach(el => el.classList.remove('hidden'));
+                document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.remove('hidden'));
                 showToast('Admin mode unlocked ✨', 'success');
             } else if (pass) {
                 showToast('Incorrect password', 'error');
@@ -198,7 +158,7 @@ if (adminBtn) {
             isAdmin = false;
             adminBtn.innerText = 'Admin Access';
             adminBtn.classList.replace('primary', 'outline');
-            document.querySelectorAll('.admin-actions').forEach(el => el.classList.add('hidden'));
+            document.querySelectorAll('.complete-btn').forEach(btn => btn.classList.add('hidden'));
             showToast('Admin controls locked 🔒', 'success');
         }
     });
@@ -216,7 +176,6 @@ function showToast(message, type = '') {
 }
 
 window.completeChore = completeChore;
-window.reassignChore = reassignChore;
 
 document.addEventListener('DOMContentLoaded', () => {
     setDateInfo();
