@@ -162,6 +162,13 @@ header {
     transition: opacity 0.3s ease;
 }
 
+.due-date {
+    font-size: 0.85rem;
+    color: var(--accent);
+    margin-top: 0.3rem;
+    font-weight: 500;
+}
+
 .complete-btn {
     width: 100%;
 }

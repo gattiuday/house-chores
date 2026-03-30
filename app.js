@@ -18,11 +18,17 @@ const db = getFirestore(app);
 let isAdmin = false;
 const ADMIN_PASSWORD = 'admin';
 
+function getNextWeekDateString() {
+    const d = new Date();
+    d.setDate(d.getDate() + 7);
+    return d.toLocaleDateString(undefined, { weekday: 'short', month: 'short', day: 'numeric' });
+}
+
 const defaultData = {
-    trash: { currentIndex: 0, sequence: ["Kanchan", "Uday", "Ankit", "Shubham", "Ravalika", "Shivani"] },
-    mopping: { currentIndex: 0, sequence: ["Ravalika", "Ankit", "Uday", "Kanchan", "Shivani", "Shubham"] },
-    bathroom: { currentIndex: 0, sequence: ["Uday", "Kanchan", "Shivani", "Shubham", "Ravalika", "Ankit"] },
-    kitchen: { currentIndex: 0, sequence: ["Kanchan", "Shivani", "Uday", "Ankit", "Shubham", "Ravalika"] }
+    trash: { currentIndex: 0, dueDate: getNextWeekDateString(), sequence: ["Kanchan", "Uday", "Ankit", "Shubham", "Ravalika", "Shivani"] },
+    mopping: { currentIndex: 0, dueDate: getNextWeekDateString(), sequence: ["Ravalika", "Ankit", "Uday", "Kanchan", "Shivani", "Shubham"] },
+    bathroom: { currentIndex: 0, dueDate: getNextWeekDateString(), sequence: ["Uday", "Kanchan", "Shivani", "Shubham", "Ravalika", "Ankit"] },
+    kitchen: { currentIndex: 0, dueDate: getNextWeekDateString(), sequence: ["Kanchan", "Shivani", "Uday", "Ankit", "Shubham", "Ravalika"] }
 };
 
 // Get Current Date Info
@@ -62,6 +68,12 @@ function fetchChores() {
         for (const [key, value] of Object.entries(data)) {
             const currentAssignee = value.sequence[value.currentIndex];
             const nameEl = document.getElementById(`assignee-${key}`);
+            const dateEl = document.getElementById(`date-${key}`);
+            
+            if (dateEl) {
+                dateEl.innerText = value.dueDate ? `Due: ${value.dueDate}` : 'Due: Assigning...';
+            }
+
             if (nameEl && nameEl.innerText !== currentAssignee) {
                 // Fade out/in effect for dynamic feel when data syncs from another device
                 nameEl.style.opacity = '0';
@@ -94,6 +106,7 @@ async function completeChore(choreName) {
         
         // Advance rotation
         data[choreName].currentIndex = (data[choreName].currentIndex + 1) % data[choreName].sequence.length;
+        data[choreName].dueDate = getNextWeekDateString();
         
         // Save back to Firestore
         await setDoc(docRef, data);
