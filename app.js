@@ -144,7 +144,7 @@ const adminBtn = document.getElementById('adminBtn');
 if (adminBtn) {
     adminBtn.addEventListener('click', () => {
         if (!isAdmin) {
-            const pass = prompt('Enter admin password to unlock task controls (Password is admin):');
+            const pass = prompt('Enter admin password to unlock task controls:');
             if (pass && pass.trim() === ADMIN_PASSWORD) {
                 isAdmin = true;
                 adminBtn.innerText = 'Lock Controls';
