@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>House Responsibilities</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <header>
+            <div class="date-info">
+                <h1 id="weekNumber">Week --</h1>
+                <p id="currentDate">Loading Date...</p>
+            </div>
+            <button id="adminBtn" class="btn outline">Admin Access</button>
+        </header>
+
+        <main class="chores-grid">
+            <div class="chore-card glass" data-chore="trash">
+                <div class="card-icon">🗑️</div>
+                <h2>Trash</h2>
+                <div class="assignee-box">
+                    <span class="label">Current</span>
+                    <h3 class="assignee-name" id="assignee-trash">Loading...</h3>
+                </div>
+                <button class="btn primary complete-btn hidden" onclick="completeChore('trash')">Mark Complete</button>
+            </div>
+            
+            <div class="chore-card glass" data-chore="mopping">
+                <div class="card-icon">🧹</div>
+                <h2>Mopping</h2>
+                <div class="assignee-box">
+                    <span class="label">Current</span>
+                    <h3 class="assignee-name" id="assignee-mopping">Loading...</h3>
+                </div>
+                <button class="btn primary complete-btn hidden" onclick="completeChore('mopping')">Mark Complete</button>
+            </div>
+            
+            <div class="chore-card glass" data-chore="bathroom">
+                <div class="card-icon">🧼</div>
+                <h2>Bathroom</h2>
+                <div class="assignee-box">
+                    <span class="label">Current</span>
+                    <h3 class="assignee-name" id="assignee-bathroom">Loading...</h3>
+                </div>
+                <button class="btn primary complete-btn hidden" onclick="completeChore('bathroom')">Mark Complete</button>
+            </div>
+            
+            <div class="chore-card glass" data-chore="kitchen">
+                <div class="card-icon">🍳</div>
+                <h2>Kitchen</h2>
+                <div class="assignee-box">
+                    <span class="label">Current</span>
+                    <h3 class="assignee-name" id="assignee-kitchen">Loading...</h3>
+                </div>
+                <button class="btn primary complete-btn hidden" onclick="completeChore('kitchen')">Mark Complete</button>
+            </div>
+        </main>
+    </div>
+    
+    <div id="toast" class="toast hidden">Notice here</div>
+
+    <script type="module" src="app.js"></script>
+</body>
+</html>
